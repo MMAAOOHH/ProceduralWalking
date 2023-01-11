@@ -1,5 +1,5 @@
 # ProceduralWalking
-Practice project exploring procedural animation
+Practice project exploring IK and OpenGL
 
 #### Materials
 OpenGL - https://www.youtube.com/watch?v=45MIykWJ-C4  
