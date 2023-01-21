@@ -1,4 +1,5 @@
 #include "renderer.h"
+#include <GL/gl.h>
 
 #include "Mouse.h"
 
@@ -46,7 +47,7 @@ SpriteRenderer::~SpriteRenderer()
 
 // const
 // const material&, const glm::mat4& model, const glm::mat4& view
-void SpriteRenderer::draw(const drawable& drawable, const glm::mat4& view)
+void SpriteRenderer::draw(const Drawable& drawable, const glm::mat4& view)
 {
 	Material* material = drawable.material;
 	Shader* shader = material->shader;
@@ -62,9 +63,6 @@ void SpriteRenderer::draw(const drawable& drawable, const glm::mat4& view)
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
 }
-
-
-
 
 Renderer::Renderer(std::vector<GLuint> attributes, GLuint max_sprites)
 	: vbo_(0), vao_(0), current_material_(nullptr), max_sprites_(max_sprites)
@@ -112,7 +110,7 @@ void Renderer::end()
 	flush();
 }
 
-void Renderer::draw(drawable& drawable_struct)
+void Renderer::draw(Drawable& drawable_struct)
 {
 	/*
 	rect dest_rect = { drawable_struct.position.x, drawable_struct.position.y , drawable_struct.size.x, drawable_struct.size.y };

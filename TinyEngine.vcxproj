@@ -168,6 +168,7 @@
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Engine.h" />
+    <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\game_object.h" />
     <ClInclude Include="src\material.h" />
     <ClInclude Include="src\Keyboard.h" />

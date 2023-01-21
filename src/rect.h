@@ -7,7 +7,7 @@
 #include "material.h"
 #include "math.h"
 
-struct drawable
+struct Drawable
 {
     enum transform_origin
     {
@@ -51,13 +51,14 @@ struct drawable
     }
 };
 
-struct line : drawable
+
+struct Line : Drawable
 {
     glm::vec2 start;
     glm::vec2 end;
     GLfloat thickness = 25.0f;
 
-    line(glm::vec2 start, glm::vec2 end) : start(start), end(end)
+    Line(glm::vec2 start, glm::vec2 end) : start(start), end(end)
     {
         transform_origin = center_left;
         position = start;

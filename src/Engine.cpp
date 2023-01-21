@@ -78,7 +78,7 @@ void Engine::update()
 		camera->position += glm::vec2(Mouse::get_mouse_dx(), Mouse::get_mouse_dy());
 
 	// Update objects
-	for (auto& entry : objects)
+	for (const auto& entry : objects)
 		entry->update(delta_time);
 }
 
@@ -92,13 +92,12 @@ void Engine::render()
 	window->update();
 }
 
-void Engine::add_game_object(const std::shared_ptr<GameObject>& go)
+std::shared_ptr<GameObject> Engine::add_game_object()
 {
+	auto go = std::make_shared<GameObject>();
 	objects.push_back(go);
 	go->start();
+
+	return go;
 }
 
-void Engine::remove_game_object(const std::shared_ptr<GameObject>& go)
-{
-	// Todo: move to back and pop from list ?
-}

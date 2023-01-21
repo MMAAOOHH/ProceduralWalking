@@ -1,5 +1,5 @@
-#include "Engine.h"
- 
+#include "Game.h"
+
 const GLuint SCR_WIDTH  = 1080;
 const GLuint SCR_HEIGHT = 1080;
 

@@ -5,7 +5,7 @@
 #include "material.h"
 #include "rect.h"
 
-struct drawable;
+struct Drawable;
 
 class SpriteRenderer
 {
@@ -14,7 +14,7 @@ public:
 	SpriteRenderer();
 	~SpriteRenderer();
 
-	void draw(const drawable& drawable_struct, const glm::mat4& view);
+	void draw(const Drawable& drawable_struct, const glm::mat4& view);
 };
 
 class Renderer
@@ -30,6 +30,6 @@ public:
 
 	void begin();
 	void end();
-	void draw(drawable& drawable_struct);
+	void draw(Drawable& drawable_struct);
 	void flush();
 };

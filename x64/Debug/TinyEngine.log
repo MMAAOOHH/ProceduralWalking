@@ -1,15 +1,2 @@
-﻿  Engine.cpp
-  Keyboard.cpp
-  main.cpp
-  material.cpp
-  renderer.cpp
-C:\Projects\ProceduralWalking\src\renderer.cpp(88,31): warning C4244: 'argument': conversion from 'unsigned __int64' to 'GLuint', possible loss of data
-C:\Projects\ProceduralWalking\src\renderer.cpp(89,35): warning C4244: 'argument': conversion from 'unsigned __int64' to 'GLuint', possible loss of data
-C:\Projects\ProceduralWalking\src\renderer.cpp(209,67): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-  shader.cpp
-  texture.cpp
-  Mouse.cpp
-  Window.cpp
-  Generating Code...
-  glad.c
+﻿  main.cpp
   TinyEngine.vcxproj -> C:\Projects\ProceduralWalking\x64\Debug\TinyEngine.exe
