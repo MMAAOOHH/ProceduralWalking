@@ -68,7 +68,7 @@ void Engine::update()
 	// delta time
 	double time = glfwGetTime();
 	delta_time = static_cast<GLfloat>(time - old_time);
-	old_time = time;
+
 
 	// update camera
 	// Zoom
@@ -80,6 +80,8 @@ void Engine::update()
 	// Update objects
 	for (const auto& entry : objects)
 		entry->update(delta_time);
+
+	old_time = time;
 }
 
 void Engine::render()

@@ -26,7 +26,7 @@ struct Engine
 	Texture* texture_a;
 	Texture* texture_b;
 
-	GLfloat delta_time;
+	GLfloat delta_time = 0.0f;
 
 	void init();
 	void handle_input();
