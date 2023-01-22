@@ -1,2 +1,0 @@
-C:\Projects\OpenGL\TinyEngine\x64\Debug\TinyEngine.exe
-C:\Projects\ProceduralWalking\x64\Debug\TinyEngine.exe
