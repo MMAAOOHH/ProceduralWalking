@@ -35,6 +35,7 @@ void Engine::init()
 	circ_shader = new Shader();
 	circ_shader->load(vs_file_name, circ_fs_file_name);
 
+
 	auto projection = camera->get_orthographic_projection();
 
 	quad_shader->use();
@@ -54,6 +55,7 @@ void Engine::init()
 	// Materials
 	quad_mat = new Material(texture_b, quad_shader, 0);
 	circ_mat = new Material(texture_a, circ_shader, 0);
+	circ_mat2 = new Material(texture_a, circ_shader, 0);
 }
 
 

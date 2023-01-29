@@ -7,11 +7,17 @@ inline GLfloat calculate_distance(const glm::vec2& p1, const glm::vec2& p2)
     return sqrt((dif_y * dif_y) + (dif_x * dif_x));
 }
 
-inline GLfloat calculate_angle(const glm::vec2& v1, const glm::vec2 v2)
+inline GLfloat calculate_angle(const glm::vec2& v1, const glm::vec2& v2)
 {
-    GLfloat dot = glm::dot(glm::normalize(v1), glm::normalize(v1));
-    GLfloat magnitude = glm::length(v1) * glm::length(v2);
-    GLfloat angle = acos(dot / magnitude);
+    if (glm::length(v1) == 0 || glm::length(v2) == 0)
+        return 0;
+
+    glm::vec2 const v1_norm = glm::normalize(v1);
+    glm::vec2 const v2_norm = glm::normalize(v2);
+
+    GLfloat const dot = glm::dot(v1_norm, v2_norm);
+    GLfloat const magnitude = glm::length(v1) * glm::length(v2);
+    GLfloat const angle = acos(dot / magnitude);
     return angle;
 }
 

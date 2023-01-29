@@ -22,6 +22,7 @@ struct Engine
 
 	Material* quad_mat;
 	Material* circ_mat;
+	Material* circ_mat2;
 
 	Texture* texture_a;
 	Texture* texture_b;

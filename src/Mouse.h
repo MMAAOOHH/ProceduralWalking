@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 #include <glfw3.h>
+#include <glm/fwd.hpp>
+#include <glm/vec2.hpp>
 
 class Mouse
 {
