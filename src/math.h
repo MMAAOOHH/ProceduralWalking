@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 
 inline GLfloat calculate_distance(const glm::vec2& p1, const glm::vec2& p2)
 {
@@ -34,4 +35,13 @@ inline GLfloat lerp(GLfloat a, GLfloat b, GLfloat t)
 inline glm::vec2 lerp(glm::vec3 a, glm::vec3 b, GLfloat t)
 {
     return a + t * (b - a);
+}
+
+inline glm::vec2 slerp(glm::vec2 a, glm::vec2 b, float t) {
+
+    float dot = glm::dot(a, b);
+    dot = glm::clamp(dot, -1.0f, 1.0f);
+    float theta = std::acos(dot) * t;
+    glm::vec2 direction = glm::normalize(b - a);
+    return a * std::cos(theta) + direction * std::sin(theta);
 }

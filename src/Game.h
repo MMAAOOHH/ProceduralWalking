@@ -92,44 +92,65 @@ struct Prototype : Game
 
 		leg = std::make_shared<IKSolver>();
 
-		leg->solve(length, length, { 0,0 }, { 0 , length * 2});
+		leg->solve(length, length, { 0,0 }, { 0 , length * 2}, 0);
 		handle->transform.position = leg->last;
 		base->transform.position = leg->first;
+
+		lerp_position = leg->last;
+		target_position = leg->last;
+		target_position.x += 50;
 	}
 
 	GLfloat elapsed = 0;
+	glm::vec2 lerp_position = { 0,length * 2 };
+	glm::vec2 cur_position = { 0,length * 2 };
+	glm::vec2 target_position = { 0,0 };
+	GLfloat step_speed = 20.0f;
+	bool moving_right = true;
 
 	void update(GLfloat dt) override
 	{
-		glm::vec2 direction1 = { 0,0 };
-		glm::vec2 direction2 = { 0,0 };
+		glm::vec2 direction = { 0,0 };
 
 		if (Keyboard::key(GLFW_KEY_RIGHT))
-			direction1.x += 1;
+		{
+			direction.x = 1;
+			moving_right = true;
+		}
 		if (Keyboard::key(GLFW_KEY_LEFT))
-			direction1.x -= 1;
+		{
+			direction.x = -1;
+			moving_right = false;
+		}
 		if (Keyboard::key(GLFW_KEY_UP))
-			direction1.y -= 1;
+			direction.y = -1;
 		if (Keyboard::key(GLFW_KEY_DOWN))
-			direction1.y += 1;
+			direction.y = 1;
 
-		if (Keyboard::key(GLFW_KEY_D))
-			direction2.x += 1;
-		if (Keyboard::key(GLFW_KEY_A))
-			direction2.x -= 1;
-		if (Keyboard::key(GLFW_KEY_W))
-			direction2.y -= 1;
-		if (Keyboard::key(GLFW_KEY_S))
-			direction2.y += 1;
+		// body movement
+		base->transform.position += direction * 10.0f;
+		if (moving_right)
+			target_position.x = base->transform.position.x + 200;
+		else
+		{
+			target_position.x = base->transform.position.x - 200;
+		}
+		
+		// distance between base
+		GLfloat distance = glm::distance(base->transform.position, lerp_position);
+		if (distance > length * 2)
+			lerp_position = target_position;
+
+		cur_position = lerp(cur_position, lerp_position, dt * step_speed);
 
 
-		handle->transform.position += direction1 * 10.0f;
-		base->transform.position += direction2 * 10.0f;
 
-		leg->solve(length, length, base->transform.position, handle->transform.position);
+		leg->solve(length, length, base->transform.position, cur_position, moving_right);
+
+		handle->transform.position = target_position;
 
 		p1->transform.position = leg->first;
-		p2->transform.position = leg->second;
+		p2->transform.position = lerp(p2->transform.position, leg->second, 10.0f* dt);
 		p3->transform.position = leg->last;
 
 				/*
@@ -155,8 +176,3 @@ struct Prototype : Game
 		*/
 	}
 };
-
-
-
-
-
