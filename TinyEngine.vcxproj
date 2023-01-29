@@ -170,6 +170,7 @@
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\game_object.h" />
+    <ClInclude Include="src\IKSolver.h" />
     <ClInclude Include="src\material.h" />
     <ClInclude Include="src\Keyboard.h" />
     <ClInclude Include="src\math.h" />
