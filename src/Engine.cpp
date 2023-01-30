@@ -53,7 +53,7 @@ void Engine::init()
 	texture_b->load("res/Images/beyer.jpg");
 
 	// Materials
-	quad_mat = new Material(texture_b, quad_shader, 0);
+	quad_mat = new Material(texture_a, quad_shader, 0);
 	circ_mat = new Material(texture_a, circ_shader, 0);
 	circ_mat2 = new Material(texture_a, circ_shader, 0);
 }
@@ -86,6 +86,16 @@ void Engine::update()
 	old_time = time;
 }
 
+void Engine::draw_circle(glm::vec2 pos, GLfloat size)
+{
+	auto circ = std::make_shared<struct Drawable>();
+	circ->material = circ_mat;
+	circ->position = pos;
+	circ->size *= size;
+
+	renderer->draw(*circ, camera->transform_view());
+}
+
 void Engine::render()
 {
 	window->clear();
@@ -105,3 +115,17 @@ std::shared_ptr<GameObject> Engine::add_game_object()
 	return go;
 }
 
+std::shared_ptr<GameObject> Engine::add_circle_object(GLfloat size)
+{
+	auto go = std::make_shared<GameObject>();
+	objects.push_back(go);
+
+	auto circ = std::make_shared<struct Drawable>();
+	circ->material = circ_mat2;
+	circ->size *= size;
+
+	go->drawable = *circ;
+	go->start();
+
+	return go;
+}

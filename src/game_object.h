@@ -19,6 +19,7 @@ struct GameObject
     virtual void update(GLfloat dt)
     {
             drawable.position = transform.position;
+            drawable.rotation = transform.rotation;
     }
     virtual void draw(SpriteRenderer& renderer, const glm::mat4& view)
     {

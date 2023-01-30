@@ -33,8 +33,10 @@ struct Engine
 	void handle_input();
 	void update();
 	void render();
+	void draw_circle(glm::vec2 pos, GLfloat size);
 
 	std::vector<std::shared_ptr<GameObject>> objects;
 	std::shared_ptr<GameObject> add_game_object();
+	std::shared_ptr<GameObject> add_circle_object(GLfloat scale);
 	//void remove_game_object(const std::shared_ptr<GameObject>& go);
 };

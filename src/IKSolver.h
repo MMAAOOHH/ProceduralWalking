@@ -6,6 +6,7 @@ class IKSolver
 {
 public:
 	glm::vec2 first, second, last;
+	GLfloat angle1, angle2;
 
 private:
 	const GLfloat pi = glm::pi<GLfloat>();
@@ -21,7 +22,6 @@ public:
 
 		// Calculate angles using the Law of Cosines
 		// TODO: flip angles in a better way, 
-		GLfloat angle1, angle2;
 		if (flip_direction)
 			angle1 = -acos((l1 * l1 - l2 * l2 + effector_squared) / (2.0f * l1 * sqrt(effector_squared))) + effector_vector_angle;
 		else
