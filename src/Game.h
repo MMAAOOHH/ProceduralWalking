@@ -39,79 +39,80 @@ struct Prototype : Game
 		}
 	}
 
-	std::shared_ptr<GameObject> p1, p2, p3, handle, base;
-	glm::vec2 v1 = { 0,0 };
-	glm::vec2 v2 = { 0,0 };
-	glm::vec2 v3 = { 0,0 };
-
-	// IK Testing
-	std::shared_ptr<IKSolver> leg;
+	std::shared_ptr<GameObject> r1, r2, r3, l1, l2, l3, debug_target, base, debug;
+	std::shared_ptr<IKSolver> leg_r, leg_l;
 	GLfloat length = 200.0f;
-	
+
+	glm::vec2 lerp_position_r = { 0,length * 2 };
+	glm::vec2 lerp_position_l = { 0,length * 2 };
+	glm::vec2 cur_pos_r = { 0,length * 2 };
+	glm::vec2 cur_pos_l = { 0,length * 2 };
+
+	glm::vec2 step_target_position = { 0,0 };
+	GLfloat step_speed = 20.0f;
+	bool moving_right = true;
+
+	bool step = false;
+
+	GLfloat step_time = 0.2f;
+
+	glm::vec2 pivot_centre{ 0,0 };
+	glm::vec2 step_start{ 0,0 };
 
 	void start() override
 	{
-		p1 = engine->add_game_object();
-		p2 = engine->add_game_object();
-		p3 = engine->add_game_object();
-		handle = engine->add_game_object();
+		// Leg IK
+		leg_r = std::make_shared<IKSolver>();
+		leg_l = std::make_shared<IKSolver>();
+
+		leg_r->solve(length, length, { 0,0 }, { 0 , length * 2 }, 0);
+		leg_l->solve(length, length, { 0,0 }, { 0 , length * 2 }, 0);
+
+		// Right Leg
+		r1 = engine->add_game_object();
+		r2 = engine->add_game_object();
+		r3 = engine->add_game_object();
+
+		// Left Leg
+		l1 = engine->add_game_object();
+		l2 = engine->add_game_object();
+		l3 = engine->add_game_object();
+
+		debug_target = engine->add_game_object();
 		base = engine->add_game_object();
+		debug = engine->add_game_object();
+
+		for (auto go : engine->objects)
 		{
 			auto circ = std::make_shared<struct Drawable>();
 			circ->material = engine->circ_mat;
 			circ->material->color = { 1,0.5,0 };
-			p1->drawable = *circ;
-		}
-		{
-			auto circ = std::make_shared<struct Drawable>();
-			circ->material = engine->circ_mat;
-			p2->drawable = *circ;
-		}
-		{
-			auto circ = std::make_shared<struct Drawable>();
-			circ->material = engine->circ_mat;
-			p3->drawable = *circ;
+			go->drawable = *circ;
 		}
 
-		{
-			auto circ = std::make_shared<struct Drawable>();
-			circ->material = engine->circ_mat2;
-			circ->material->color = { 1,1,0 };
-			handle->drawable = *circ;
-			handle->drawable.size = glm::vec2(32.0f);
-		}
+		debug_target->drawable.material = engine->circ_mat2;
+		debug_target->drawable.size *= 0.5f;
 
-		{
-			auto circ = std::make_shared<struct Drawable>();
-			circ->material = engine->circ_mat2;
-			circ->material->color = { 1,1,0 };
-			base->drawable = *circ;
-			base->drawable.size = glm::vec2(32.0f);
-		}
+		base->drawable.material = engine->circ_mat2;
+		base->drawable.size *= 0.5f;
 
+		// Starting positions
+		base->transform.position = { 0,60 };
 
-		leg = std::make_shared<IKSolver>();
+		lerp_position_r = leg_r->last;
+		lerp_position_l = leg_r->last;
 
-		leg->solve(length, length, { 0,0 }, { 0 , length * 2}, 0);
-		handle->transform.position = leg->last;
-		base->transform.position = leg->first;
-
-		lerp_position = leg->last;
-		target_position = leg->last;
-		target_position.x += 50;
+		step_target_position = { 0 , length * 2 };
+		step_target_position.x += 50;
+		debug_target->transform.position = step_target_position;
 	}
 
-	GLfloat elapsed = 0;
-	glm::vec2 lerp_position = { 0,length * 2 };
-	glm::vec2 cur_position = { 0,length * 2 };
-	glm::vec2 target_position = { 0,0 };
-	GLfloat step_speed = 20.0f;
-	bool moving_right = true;
 
+
+	GLfloat elapsed = 0.0f;
 	void update(GLfloat dt) override
 	{
 		glm::vec2 direction = { 0,0 };
-
 		if (Keyboard::key(GLFW_KEY_RIGHT))
 		{
 			direction.x = 1;
@@ -122,57 +123,61 @@ struct Prototype : Game
 			direction.x = -1;
 			moving_right = false;
 		}
-		if (Keyboard::key(GLFW_KEY_UP))
-			direction.y = -1;
-		if (Keyboard::key(GLFW_KEY_DOWN))
-			direction.y = 1;
 
 		// body movement
-		base->transform.position += direction * 10.0f;
+		base->transform.position += direction * 5.0f;
 		if (moving_right)
-			target_position.x = base->transform.position.x + 200;
+			step_target_position.x = base->transform.position.x + 200;
 		else
-		{
-			target_position.x = base->transform.position.x - 200;
-		}
+			step_target_position.x = base->transform.position.x - 200;
 		
-		// distance between base
-		GLfloat distance = glm::distance(base->transform.position, lerp_position);
+
+
+		GLfloat distance = glm::distance(base->transform.position, lerp_position_r);
 		if (distance > length * 2)
-			lerp_position = target_position;
+		{
+			// Take step
+			step_start = cur_pos_r;
+			pivot_centre = (step_target_position - step_start) * 0.5f + step_start;
+			step = true;
+		}
 
-		cur_position = lerp(cur_position, lerp_position, dt * step_speed);
+		if (step)
+		{
+			elapsed += dt;
+			GLfloat frac_complete = elapsed / step_time;
+			GLfloat angle = lerp(0, glm::pi<GLfloat>(), frac_complete);
+			lerp_position_r = rotate(step_start, pivot_centre, angle);
+			if (frac_complete >= 1.0f)
+			{
+				step = false;
+				elapsed = 0.0f;
+				lerp_position_r = step_target_position;
+			}
+		}
 
 
 
-		leg->solve(length, length, base->transform.position, cur_position, moving_right);
+		cur_pos_r = lerp(cur_pos_r, lerp_position_r, dt * step_speed);
 
-		handle->transform.position = target_position;
+		leg_r->solve(length, length, base->transform.position, cur_pos_r, moving_right);
+		leg_l->solve(length, length, base->transform.position, cur_pos_r, moving_right);
 
-		p1->transform.position = leg->first;
-		p2->transform.position = lerp(p2->transform.position, leg->second, 10.0f* dt);
-		p3->transform.position = leg->last;
 
-				/*
-		// FK-testing
-		distance = calculate_distance(v1, v3);
-		rotation_angle = calculate_angle(v1, v3);
 
-		glm::clamp(rotation_angle, 0.0f, glm::two_pi<GLfloat>());
 
-		// inverse cosine, distance / lenght * 2
-		GLfloat angle = glm::acos(distance / (length * 2));
+		debug_target->transform.position = step_target_position;
 
-		// Calculate "Elbow"
-		// ----------------------
-		// x = angle + cosine of the radian * length, y = sine of the angle + radian * length
-		v2 = { (glm::cos(-angle + rotation_angle)) * length, glm::sin(-angle + rotation_angle) * length };
+		
+		r1->transform.position = leg_r->first;
+		r2->transform.position = leg_r->second;
+		r3->transform.position = leg_r->last;
 
-		// Calculate End Effector, "ankle"
-		// ----------------------
-		// radian 90 degrees over pi
-		// x = cosine of the radian * distance, y = sine of the radian * distance
-		//v3 = { glm::cos(rotation_angle) * distance, glm::sin(rotation_angle) * distance };
-		*/
+		l1->transform.position = leg_l->first;
+		l2->transform.position = leg_l->second;
+		l3->transform.position = leg_l->last;
+
 	}
 };
+
+

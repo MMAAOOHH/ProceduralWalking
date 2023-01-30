@@ -37,11 +37,36 @@ inline glm::vec2 lerp(glm::vec3 a, glm::vec3 b, GLfloat t)
     return a + t * (b - a);
 }
 
-inline glm::vec2 slerp(glm::vec2 a, glm::vec2 b, float t) {
 
-    float dot = glm::dot(a, b);
-    dot = glm::clamp(dot, -1.0f, 1.0f);
-    float theta = std::acos(dot) * t;
-    glm::vec2 direction = glm::normalize(b - a);
-    return a * std::cos(theta) + direction * std::sin(theta);
+inline glm::vec2 slerp(glm::vec2 start, glm::vec2 end, GLfloat t)
+{
+    GLfloat angle = acos(glm::dot(start, end));
+    return (start * sin((1 - t) * angle) + end * sin(t * angle)) / sin(angle);
 }
+
+inline glm::vec2 rotate(const glm::vec2 start, const glm::vec2 pivot, float angle) {
+    float s = sin(angle);
+    float c = cos(angle);
+
+    glm::vec2 result;
+    result.x = (start.x - pivot.x) * c - (start.y - pivot.y) * s + pivot.x;
+    result.y = (start.x - pivot.x) * s + (start.y - pivot.y) * c + pivot.y;
+    return result;
+}
+
+inline glm::vec2 rotate180(const glm::vec2 start, const glm::vec2 pivot) {
+    return rotate(start, pivot, glm::pi<GLfloat>());
+}
+
+/*
+inline glm::vec2 slerp(glm::vec2 a, glm::vec2 b, GLfloat t) {
+
+    GLfloat dot = glm::dot(a, b);
+    dot = glm::clamp(dot, -1.0f, 1.0f);
+    GLfloat theta = std::acos(dot) * t;
+    glm::vec2 direction = b - a * t;
+    direction = normalize(direction);
+    glm::vec2 result = (a * std::cos(theta)) + (direction * std::sin(theta));
+    return result;
+}
+*/
