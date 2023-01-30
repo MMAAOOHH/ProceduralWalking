@@ -40,7 +40,7 @@ struct Prototype : Game
 	}
 
 	// Joints and body parts
-	std::shared_ptr<GameObject> r1, r2, r3, l1, l2, l3, r_upper, l_upper, body;
+	std::shared_ptr<GameObject> r1, r2, r3, l1, l2, l3, r_upper, r_lower, l_upper, l_lower, body, head, eye1, eye2;
 
 	std::shared_ptr<IKSolver> leg_r, leg_l;
 
@@ -77,15 +77,22 @@ struct Prototype : Game
 		r2 = engine->add_game_object();
 		r3 = engine->add_game_object();
 		r_upper = engine->add_game_object();
+		r_lower = engine->add_game_object();
 
 		// Left Leg
 		l1 = engine->add_game_object();
 		l2 = engine->add_game_object();
 		l3 = engine->add_game_object();
 		l_upper = engine->add_game_object();
+		l_lower = engine->add_game_object();
 
 
 		body = engine->add_game_object();
+		head = engine->add_game_object();
+		eye1 = engine->add_game_object();
+		eye2 = engine->add_game_object();
+
+
 
 		// Creates drawables
 		for (auto go : engine->objects)
@@ -96,24 +103,46 @@ struct Prototype : Game
 			go->drawable = *circ;
 		}
 
+		// Head
+		{
+			auto quad = std::make_shared<struct Drawable>();
+			quad->material = engine->quad_mat;
+			quad->transform_origin = Drawable::centered;
+			quad->size *= 3;
+
+			head->drawable = *quad;
+		}
+
 		// Body
 		{
-			auto bod = std::make_shared<struct Drawable>();
-			bod->material = engine->quad_mat;
-			bod->material->color = { 1,0.5,0 };
-			bod->transform_origin = Drawable::bottom_middle;
-			bod->size.y *= 4;
+			auto quad = std::make_shared<struct Drawable>();
+			quad->material = engine->quad_mat;
+			quad->material->color = { 1,0.5,0 };
+			quad->transform_origin = Drawable::bottom_middle;
+			quad->size.y *= 4;
 
-			body->drawable = *bod;
+			body->drawable = *quad;
 		}
+
+
 		// Limb segments
 		{
 			auto quad = std::make_shared<struct Drawable>();
 			quad->material = engine->quad_mat;
 			quad->transform_origin = Drawable::center_left;
 			quad->size.x = length;
+			quad->size.y *= 0.7f;
 
 			r_upper->drawable = *quad;
+		}
+		{
+			auto quad = std::make_shared<struct Drawable>();
+			quad->material = engine->quad_mat;
+			quad->transform_origin = Drawable::center_left;
+			quad->size.x = length;
+			quad->size.y *= 0.7f;
+
+			r_lower->drawable = *quad;
 		}
 
 		{
@@ -121,9 +150,32 @@ struct Prototype : Game
 			quad->material = engine->quad_mat;
 			quad->transform_origin = Drawable::center_left;
 			quad->size.x = length;
+			quad->size.y *= 0.7f;
 
 			l_upper->drawable = *quad;
 		}
+		{
+			auto quad = std::make_shared<struct Drawable>();
+			quad->material = engine->quad_mat;
+			quad->transform_origin = Drawable::center_left;
+			quad->size.x = length;
+			quad->size.y *= 0.7f;
+
+			l_lower->drawable = *quad;
+		}
+
+
+
+		// eyes
+		{
+			eye1->drawable.size *= 0.5f;
+			eye1->drawable.material = engine->circ_mat2;
+			eye1->drawable.material->color = { 0.1f,0.0f,0.1f };
+
+			eye2->drawable.size *= 0.5f;
+			eye2->drawable.material = engine->circ_mat2;
+		}
+
 
 		root = { 0,20 };
 
@@ -144,10 +196,16 @@ struct Prototype : Game
 		pivot_centre_r.y = length * 2;
 		pivot_centre_l.y = length * 2;
 
+
+
 	}
 
 	glm::vec2 rotated{ 0,0 };
 
+	glm::vec2 eye_offset = { 40, 0 };
+	glm::vec2 head_offset = { 0, -100};
+
+	GLfloat blink = 0;
 	void update(GLfloat dt) override
 	{
 		glm::vec2 direction = { 0,0 };
@@ -230,6 +288,8 @@ struct Prototype : Game
 		// Update visual
 		// -------------
 		body->transform.position = root;
+		head->transform.position = body->transform.position;
+
 
 		r1->transform.position = leg_r->first;
 		r2->transform.position = leg_r->second;
@@ -242,10 +302,14 @@ struct Prototype : Game
 		// Limbs visual
 		r_upper->transform.position = leg_r->first;
 		r_upper->transform.rotation = leg_r->angle1;
+		r_lower->transform.position = leg_r->last;
+		r_lower->transform.rotation = leg_r->angle1 + leg_r->angle2;
+
 
 		l_upper->transform.position = leg_l->first;
 		l_upper->transform.rotation = leg_l->angle1;
-
+		l_lower->transform.position = leg_l->last;
+		l_lower->transform.rotation = leg_l->angle1 + leg_l->angle2;
 		/*
 		l_upper->transform.position = leg_l->first;
 		l_lower->transform.position = leg_l->second;
@@ -257,6 +321,18 @@ struct Prototype : Game
 		pivot_centre_r.x = (step_target_position.x - leg_r->last.x) * 0.5f + leg_r->last.x;
 		pivot_centre_l.x = (step_target_position.x - leg_l->last.x) * 0.5f + leg_l->last.x;
 		*/
+
+		// head bla
+		head->transform.position.y = root.y - 200;
+		head->transform.position.x = ease_lerp(head->transform.position.x, root.x + (head->drawable.size.x / 2 * direction.x), dt * 20.0f);
+
+		eye1->transform.position.y = head->transform.position.y;
+		eye2->transform.position.y = head->transform.position.y;
+
+		eye1->transform.position = ease_lerp(eye1->transform.position, head->transform.position + eye_offset, dt * 20.0f) + direction;
+		eye2->transform.position = ease_lerp(eye2->transform.position, head->transform.position - eye_offset, dt * 20.0f);
+
+
 	}
 	bool check_step(const glm::vec2 base_pos, const glm::vec2 lerp_pos)
 	{

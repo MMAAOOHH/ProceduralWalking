@@ -22,6 +22,11 @@ inline GLfloat calculate_angle(const glm::vec2& v1, const glm::vec2& v2)
     return angle;
 }
 
+inline GLfloat ping_pong(GLfloat time, GLfloat min, GLfloat max)
+{
+    return min + (max - min) * fabs(fmod(time, 2.0f) - 1.0f);
+}
+
 inline glm::vec2 lerp(glm::vec2 a, glm::vec2 b, GLfloat t)
 {
     return a + t * (b - a);
@@ -54,9 +59,19 @@ inline glm::vec2 rotate(const glm::vec2 start, const glm::vec2 pivot, float angl
     return result;
 }
 
-inline glm::vec2 rotate180(const glm::vec2 start, const glm::vec2 pivot) {
-    return rotate(start, pivot, glm::pi<GLfloat>());
+inline glm::vec2 ease_lerp(glm::vec2 start, glm::vec2 end, GLfloat t)
+{
+    t = (std::sin(t * glm::pi<GLfloat>() - glm::pi<GLfloat>() / 2) + 1) / 2;
+    return lerp(start, end, t);
 }
+
+inline GLfloat ease_lerp(GLfloat start, GLfloat end, GLfloat t)
+{
+    t = (std::sin(t * glm::pi<GLfloat>() - glm::pi<GLfloat>() / 2) + 1) / 2;
+    return lerp(start, end, t);
+}
+
+
 
 /*
 inline glm::vec2 slerp(glm::vec2 a, glm::vec2 b, GLfloat t) {
