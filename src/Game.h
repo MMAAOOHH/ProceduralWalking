@@ -125,7 +125,7 @@ struct Prototype : Game
 			l_upper->drawable = *quad;
 		}
 
-		root = { 0,0 };
+		root = { 0,20 };
 
 
 		// Starting positions
@@ -212,9 +212,9 @@ struct Prototype : Game
 		// -------
 		if (direction.x != 0)
 		{
-			if (check_step(r_base, leg_r->last))
+			if (check_step(root, leg_r->last))
 				r_step = true;
-			if (check_step(l_base, leg_l->last))
+			if (check_step(root, leg_l->last))
 				l_step = true;
 		}
 
@@ -224,8 +224,8 @@ struct Prototype : Game
 		cur_pos_r = lerp(cur_pos_r, lerp_position_r, dt * step_speed);
 		cur_pos_l = lerp(cur_pos_l, lerp_position_l, dt * step_speed);
 
-		leg_r->solve(length, length, r_base, cur_pos_r, moving_right);
-		leg_l->solve(length, length, l_base, cur_pos_l, moving_right);
+		leg_r->solve(length, length, root, cur_pos_r, moving_right);
+		leg_l->solve(length, length, root, cur_pos_l, moving_right);
 
 		// Update visual
 		// -------------
