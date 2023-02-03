@@ -17,32 +17,32 @@ public:
 		glm::vec2 end_effector = clamp_distance(target - base, l1, l2);
 		GLfloat effector_vector_angle = atan2(end_effector.y, end_effector.x);
 		effector_vector_angle = glm::clamp(effector_vector_angle, 0.0f, glm::two_pi<GLfloat>());
-
 		const GLfloat effector_squared = end_effector.x * end_effector.x + end_effector.y * end_effector.y;
 
 		// Calculate angles using the Law of Cosines
-		// TODO: flip angles in a better way, 
+		// TODO: test law of sine / p theorem
+		// TODO: negate angles on flipped using direction sign instead 
 		if (flip_direction)
+		{
 			angle1 = -acos((l1 * l1 - l2 * l2 + effector_squared) / (2.0f * l1 * sqrt(effector_squared))) + effector_vector_angle;
-		else
-			angle1 = acos((l1 * l1 - l2 * l2 + effector_squared) / (2.0f * l1 * sqrt(effector_squared))) + effector_vector_angle;
-		if (std::isnan(angle1))
-			angle1 = 0.0f;
-
-		if (flip_direction)
 			angle2 = -acos((l1 * l1 + l2 * l2 - effector_squared) / (2.0f * l1 * l2));
+		}
 		else
+		{
+			angle1 = acos((l1 * l1 - l2 * l2 + effector_squared) / (2.0f * l1 * sqrt(effector_squared))) + effector_vector_angle;
 			angle2 = acos((l1 * l1 + l2 * l2 - effector_squared) / (2.0f * l1 * l2));
-		if (std::isnan(angle1))
-			angle1 = 0.0f;
-		if (std::isnan(angle2))
-			angle2 = 0.0f;
+		}
+			
+		if (std::isnan(angle1)) angle1 = 0.0f;
+		if (std::isnan(angle2)) angle2 = 0.0f;
 
-
-		// Calculate positions
+		// Positions
 		first = base;
 		second = first + glm::vec2(cos(angle1) * l1, sin(angle1) * l1);
+		// Todo: simplify calculation
 		last = second + glm::vec2(cos(pi - (-angle2 - angle1)) * l2, sin(pi - (2 * pi - angle2 - angle1)) * l2);
+
+		// sin(theta) length / distance
 	}
 
 private:
